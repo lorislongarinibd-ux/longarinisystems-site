@@ -1,0 +1,149 @@
+{
+  "version": "1.0.0",
+  "generated_from": "repository media discovery",
+  "policy": "Slots reference real repository media when present; every slot without repository media renders an explicit placeholder. No media is generated, claimed as approved, or fetched from the network.",
+  "slots": {
+    "hero_signature": {
+      "path": "media/hero_suite.png",
+      "source": "ActionOS_FINAL/apps/web/public/og.png",
+      "exists": true,
+      "type": "image/png",
+      "dimensions": "1200x630",
+      "purpose": "Hero visual for the full-suite front door",
+      "status": "repository_media_present"
+    },
+    "marginguard_signature": {
+      "path": "media/marginguard.png",
+      "source": "MarginGuard_FINAL/apps/web/public/og.png",
+      "exists": true,
+      "type": "image/png",
+      "dimensions": "1200x630",
+      "purpose": "MarginGuard product signature visual",
+      "status": "repository_media_present"
+    },
+    "compliance_signature": {
+      "path": "media/compliance.png",
+      "source": "Merchant_Compliance_OS_FINAL/apps/web/public/og.png",
+      "exists": true,
+      "type": "image/png",
+      "dimensions": "1200x630",
+      "purpose": "Merchant Compliance OS product signature visual",
+      "status": "repository_media_present"
+    },
+    "favicon": {
+      "path": "favicon.svg",
+      "source": "MarginGuard_FINAL/apps/web/public/favicon.svg",
+      "exists": true,
+      "type": "image/svg+xml",
+      "purpose": "Site favicon",
+      "status": "repository_media_present"
+    },
+    "demo_video_walkthrough": {
+      "path": null,
+      "exists": false,
+      "type": "video",
+      "purpose": "Full-suite walkthrough demo",
+      "status": "PLACEHOLDER — no approved video in repository"
+    },
+    "demo_video_marginguard": {
+      "path": null,
+      "exists": false,
+      "type": "video",
+      "purpose": "MarginGuard import/economics walkthrough",
+      "status": "PLACEHOLDER — no approved video in repository"
+    },
+    "demo_video_compliance": {
+      "path": null,
+      "exists": false,
+      "type": "video",
+      "purpose": "Compliance OS agenda/readiness walkthrough",
+      "status": "PLACEHOLDER — no approved video in repository"
+    },
+    "demo_video_actionos": {
+      "path": null,
+      "exists": false,
+      "type": "video",
+      "purpose": "ActionOS command/execution walkthrough",
+      "status": "PLACEHOLDER — no approved video in repository"
+    },
+    "testimonial_video": {
+      "path": null,
+      "exists": false,
+      "type": "video",
+      "purpose": "Customer testimonial",
+      "status": "PLACEHOLDER — no approved testimonial media exists"
+    }
+  },
+  "verified_repository_media": [
+    "media/hero_suite.png",
+    "media/marginguard.png",
+    "media/compliance.png",
+    "favicon.svg"
+  ],
+  "honest_placeholder_slots": [
+    "demo_video_walkthrough",
+    "demo_video_marginguard",
+    "demo_video_compliance",
+    "demo_video_actionos",
+    "testimonial_video"
+  ],
+  "verified_claims": {
+    "marginguard": {
+      "tests": "42/42 PASS",
+      "capabilities": [
+        "CSV/XLSX/FatturaPA local ingestion",
+        "Authenticated import boundary prepare->preview->validate->execute",
+        "Tenant isolation and idempotent reimport",
+        "Deterministic economics core",
+        "Interactive scenario engine",
+        "ROI/payback/NPV scoring",
+        "Suite Bridge v1.1 contract"
+      ],
+      "gaps": [
+        "Real HTTP/auth provider adapter",
+        "Production blob/job runner",
+        "External benchmark connectors",
+        "Vertical packs",
+        "Outcome verification"
+      ]
+    },
+    "compliance": {
+      "tests": "7/7 PASS",
+      "capabilities": [
+        "Deterministic tri-state rule engine",
+        "Provenance display",
+        "7/30/90 day agenda",
+        "Regulatory radar demo",
+        "Evidence pipeline and drawer",
+        "Suite Bridge v1.1 contract"
+      ],
+      "gaps": [
+        "Tenancy/auth",
+        "Live source registry",
+        "Approved rule packs",
+        "Document workflow",
+        "Native mobile companion"
+      ]
+    },
+    "actionos": {
+      "tests": "56/56 PASS",
+      "capabilities": [
+        "Protocol and DSL validation",
+        "Deterministic planner (fixture mode)",
+        "Versioned action catalog (6 contract definitions)",
+        "Deterministic trigger/scheduler (24 tests)",
+        "Curated templates (8)",
+        "Command Center compile->execute->verify",
+        "Outcome verification verdicts (9 tests)",
+        "Suite Bridge v1.1 contract"
+      ],
+      "gaps": [
+        "Native Windows/Android agents",
+        "Cloud auth and persistence",
+        "Distributed scheduler",
+        "Voice invocation",
+        "Commercial catalog expansion"
+      ]
+    }
+  }
+}

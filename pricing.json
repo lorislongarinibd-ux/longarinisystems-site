@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-09-12",
+  "policy": "Pricing is configurable from this file. When no approved price exists for a plan, the plan renders a clearly pending state and no numeric amount is shown, simulated or implied. This file is the single source of truth for what the landing page may display.",
+  "status": "PENDING",
+  "status_reason": "No owner-approved commercial prices exist yet. Every plan shows a pending state. No fabricated amounts.",
+  "owner_action_required": "Provide approved plan names, currency and amounts per plan in the 'plans' array below, then set status to 'APPROVED'. Until then the landing renders pending.",
+  "currency": "EUR",
+  "plans": [
+    {
+      "id": "standalone_compliance",
+      "name": "Merchant Compliance OS",
+      "product": "compliance",
+      "approved": false,
+      "price_amount": null,
+      "billing_cycle": null,
+      "display": "PENDING",
+      "display_text": "Prezzo da definire",
+      "cta": "Richiedi demo",
+      "notes": "Standalone plan. Requires owner-approved price before display."
+    },
+    {
+      "id": "standalone_marginguard",
+      "name": "MarginGuard",
+      "product": "marginguard",
+      "approved": false,
+      "price_amount": null,
+      "billing_cycle": null,
+      "display": "PENDING",
+      "display_text": "Prezzo da definire",
+      "cta": "Richiedi demo",
+      "notes": "Standalone plan. Requires owner-approved price before display."
+    },
+    {
+      "id": "standalone_actionos",
+      "name": "ActionOS",
+      "product": "actionos",
+      "approved": false,
+      "price_amount": null,
+      "billing_cycle": null,
+      "display": "PENDING",
+      "display_text": "Prezzo da definire",
+      "cta": "Richiedi demo",
+      "notes": "Standalone plan. Personal/pro automation tier anticipated in spec; exact price pending."
+    },
+    {
+      "id": "bundle_compliance_margin",
+      "name": "Compliance + Margin Intelligence",
+      "product": "bundle",
+      "approved": false,
+      "price_amount": null,
+      "billing_cycle": null,
+      "display": "PENDING",
+      "display_text": "Prezzo da definire",
+      "cta": "Vedi il bundle",
+      "notes": "Bundle plan. Detect + Quantify/Optimize pairing."
+    },
+    {
+      "id": "bundle_full_suite",
+      "name": "Full Business Operating Suite",
+      "product": "bundle",
+      "approved": false,
+      "price_amount": null,
+      "billing_cycle": null,
+      "display": "PENDING",
+      "display_text": "Prezzo da definire",
+      "cta": "Richiedi demo suite",
+      "notes": "Premium bundle. Detect -> Quantify -> Optimize -> Act -> Verify."
+    }
+  ],
+  "render_rules": {
+    "when_approved": "Show price_amount with currency and billing_cycle, mark plan as approved.",
+    "when_pending": "Show display_text only. Hide any numeric amount. Do not render a strikethrough placeholder price or a 'from' estimate.",
+    "forbidden": [
+      "invented amounts",
+      "simulated discounts",
+      "annual/monthly guessing",
+      "testimonial-linked pricing",
+      "customer counts used as price justification"
+    ]
+  }
+}
