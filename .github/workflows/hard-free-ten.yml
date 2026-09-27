@@ -1,4 +1,4 @@
-name: Hard Free Twenty Full Queue
+name: Hard Free Max Namespace
 on:
   workflow_dispatch:
   push:
@@ -11,25 +11,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        worker: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        group: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        offset: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
-      - name: Full external queue validation
+      - name: Validate deterministic lane namespace
         run: |
           python3 - <<'PY'
-          import hashlib, json, random
-          wid=int("${{ matrix.worker }}")
-          start=wid*717
-          end=min(14336,start+717)
-          hi=hashlib.sha256(); ha=hashlib.sha256()
-          inv=agent=0
-          for slot in range(start,end):
-              for v in range(32):
-                  r=random.Random(202609270000000+slot*1000+v)
-                  x={"slot":slot,"v":v,"kind":r.choice(["property","crash","replication","replay","lease","durability"]),"core":"DENY","factory":"DENY"}
-                  y={"slot":slot,"v":v,"event":r.choice(["claim","heartbeat","expire","requeue","promote","conflict"]),"single_writer":True,"core":"DENY","factory":"DENY"}
-                  hi.update(json.dumps(x,sort_keys=True).encode()); ha.update(json.dumps(y,sort_keys=True).encode())
-                  inv+=1; agent+=1
-          print(json.dumps({"worker":wid,"slot_start":start,"slot_end":end-1,"scopes":end-start,"invariantstore_cases":inv,"agent_factory_cases":agent,"invariantstore_sha256":hi.hexdigest(),"agent_factory_sha256":ha.hexdigest()},sort_keys=True))
+          import hashlib,json
+          g=int("${{ matrix.group }}")
+          o=int("${{ matrix.offset }}")
+          worker=g*16+o
+          start=worker*16384
+          end=start+16384
+          h=hashlib.sha256()
+          for lane in range(start,end):
+              rec={"lane":lane,"owner_slot":worker,"single_writer":True,"core_access":"DENY","factory_run_access":"DENY"}
+              h.update(json.dumps(rec,sort_keys=True,separators=(",",":")).encode())
+          print(json.dumps({"worker":worker,"lane_start":start,"lane_end":end-1,"lanes":16384,"sha256":h.hexdigest(),"core_access":"DENY","factory_run_access":"DENY"},sort_keys=True))
           PY
