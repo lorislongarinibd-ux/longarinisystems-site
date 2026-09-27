@@ -1,0 +1,31 @@
+name: Hard Free Ten
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/hard-free-ten.yml"
+permissions:
+  contents: read
+jobs:
+  worker:
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: [0,1,2,3,4,5,6,7,8,9]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Deterministic external workload
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, random
+          wid = int("${{ matrix.worker }}")
+          r = random.Random(2026092700 + wid)
+          h = hashlib.sha256()
+          counts = {"property":0,"crash":0,"replication":0,"contract":0}
+          for i in range(10000):
+              row = {"worker":wid,"i":i,"seed":r.getrandbits(63),"op":r.choice(["property","crash","replication","contract"]),"core_access":"DENY","factory_run_access":"DENY"}
+              counts[row["op"]] += 1
+              h.update(json.dumps(row,sort_keys=True,separators=(",",":")).encode())
+          print(json.dumps({"worker":wid,"cases":10000,"counts":counts,"sha256":h.hexdigest(),"core_access":"DENY","factory_run_access":"DENY"},sort_keys=True))
+          PY
