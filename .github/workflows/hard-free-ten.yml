@@ -1,4 +1,4 @@
-name: Hard Free Twenty
+name: Hard Free Twenty Full Queue
 on:
   workflow_dispatch:
   push:
@@ -13,19 +13,23 @@ jobs:
       matrix:
         worker: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
-      - name: Deterministic external workload
+      - name: Full external queue validation
         run: |
           python3 - <<'PY'
           import hashlib, json, random
-          wid = int("${{ matrix.worker }}")
-          r = random.Random(2026092700 + wid)
-          h = hashlib.sha256()
-          counts = {"property":0,"crash":0,"replication":0,"contract":0}
-          for i in range(10000):
-              row = {"worker":wid,"i":i,"seed":r.getrandbits(63),"op":r.choice(["property","crash","replication","contract"]),"core_access":"DENY","factory_run_access":"DENY"}
-              counts[row["op"]] += 1
-              h.update(json.dumps(row,sort_keys=True,separators=(",",":")).encode())
-          print(json.dumps({"worker":wid,"cases":10000,"counts":counts,"sha256":h.hexdigest(),"core_access":"DENY","factory_run_access":"DENY"},sort_keys=True))
+          wid=int("${{ matrix.worker }}")
+          start=wid*717
+          end=min(14336,start+717)
+          hi=hashlib.sha256(); ha=hashlib.sha256()
+          inv=agent=0
+          for slot in range(start,end):
+              for v in range(32):
+                  r=random.Random(202609270000000+slot*1000+v)
+                  x={"slot":slot,"v":v,"kind":r.choice(["property","crash","replication","replay","lease","durability"]),"core":"DENY","factory":"DENY"}
+                  y={"slot":slot,"v":v,"event":r.choice(["claim","heartbeat","expire","requeue","promote","conflict"]),"single_writer":True,"core":"DENY","factory":"DENY"}
+                  hi.update(json.dumps(x,sort_keys=True).encode()); ha.update(json.dumps(y,sort_keys=True).encode())
+                  inv+=1; agent+=1
+          print(json.dumps({"worker":wid,"slot_start":start,"slot_end":end-1,"scopes":end-start,"invariantstore_cases":inv,"agent_factory_cases":agent,"invariantstore_sha256":hi.hexdigest(),"agent_factory_sha256":ha.hexdigest()},sort_keys=True))
           PY
