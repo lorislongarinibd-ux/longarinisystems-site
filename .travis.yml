@@ -1,0 +1,38 @@
+os: linux
+dist: noble
+language: minimal
+
+branches:
+  only:
+    - ddf-free-fabric-v2
+
+env:
+  jobs:
+    - WORKER=0 WORKERS=20
+    - WORKER=1 WORKERS=20
+    - WORKER=2 WORKERS=20
+    - WORKER=3 WORKERS=20
+    - WORKER=4 WORKERS=20
+    - WORKER=5 WORKERS=20
+    - WORKER=6 WORKERS=20
+    - WORKER=7 WORKERS=20
+    - WORKER=8 WORKERS=20
+    - WORKER=9 WORKERS=20
+    - WORKER=10 WORKERS=20
+    - WORKER=11 WORKERS=20
+    - WORKER=12 WORKERS=20
+    - WORKER=13 WORKERS=20
+    - WORKER=14 WORKERS=20
+    - WORKER=15 WORKERS=20
+    - WORKER=16 WORKERS=20
+    - WORKER=17 WORKERS=20
+    - WORKER=18 WORKERS=20
+    - WORKER=19 WORKERS=20
+
+install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq yosys
+
+script:
+  - cd ddf_public_executor
+  - python3 tools/run_shard.py --worker "$WORKER" --workers "$WORKERS" --count 4096
