@@ -4,7 +4,7 @@ jobs:
   ddf-synthesis:
     docker:
       - image: cimg/base:stable
-    resource_class: small
+    resource_class: medium
     parallelism: 30
     steps:
       - checkout
@@ -14,10 +14,21 @@ jobs:
             sudo apt-get update -qq
             sudo apt-get install -y -qq yosys
       - run:
-          name: Deterministic synthesis shard
+          name: Saturate both vCPUs with two deterministic shards
           command: |
+            set -euo pipefail
             cd ddf_public_executor
-            python3 tools/run_shard.py               --worker "$CIRCLE_NODE_INDEX"               --workers "$CIRCLE_NODE_TOTAL"               --count 4096
+            base=$(( CIRCLE_NODE_INDEX * 2 ))
+            python3 tools/run_shard.py --worker "$base" --workers 60 --count 4096 > "circle_${base}.log" 2>&1 &
+            p1=$!
+            worker2=$(( base + 1 ))
+            python3 tools/run_shard.py --worker "$worker2" --workers 60 --count 4096 > "circle_${worker2}.log" 2>&1 &
+            p2=$!
+            rc=0
+            wait "$p1" || rc=1
+            wait "$p2" || rc=1
+            cat circle_*.log
+            exit "$rc"
       - store_artifacts:
           path: ddf_public_executor/out
 
