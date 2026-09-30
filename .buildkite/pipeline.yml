@@ -1,0 +1,12 @@
+steps:
+  - label: ":chip: DDF synth %n"
+    command: |
+      set -euo pipefail
+      sudo apt-get update -qq
+      sudo apt-get install -y -qq yosys
+      cd ddf_public_executor
+      python3 tools/run_shard.py --worker "$BUILDKITE_PARALLEL_JOB" --workers "$BUILDKITE_PARALLEL_JOB_COUNT" --count 4096
+    parallelism: 10
+    branches: "ddf-free-fabric-v2"
+    artifact_paths:
+      - "ddf_public_executor/out/**/*"
