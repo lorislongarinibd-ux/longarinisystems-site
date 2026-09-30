@@ -1,0 +1,57 @@
+name: DDF 80-Process Saturation Benchmark
+
+on:
+  push:
+    branches:
+      - ddf-free-fabric-v2
+    paths:
+      - '.github/workflows/ddf-80proc-benchmark.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synth:
+    name: sat-${{ matrix.group }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        group: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Yosys once per 4-vCPU runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq yosys
+      - name: Saturate all four vCPUs with disjoint deterministic shards
+        working-directory: ddf_public_executor
+        run: |
+          set -euo pipefail
+          base=$(( ${{ matrix.group }} * 4 ))
+          pids=""
+          for off in 0 1 2 3; do
+            worker=$(( base + off ))
+            python3 tools/run_shard.py --worker "$worker" --workers 256 --count 4096               > "worker_${worker}.log" 2>&1 &
+            pids="$pids $!"
+          done
+          rc=0
+          for p in $pids; do
+            wait "$p" || rc=1
+          done
+          cat worker_*.log
+          exit "$rc"
+      - name: Hash evidence
+        working-directory: ddf_public_executor
+        run: |
+          find out -type f \( -name results.json -o -name summary.json \) -print0             | sort -z | xargs -0 sha256sum > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ddf-80proc-${{ matrix.group }}
+          path: |
+            ddf_public_executor/out/
+            ddf_public_executor/SHA256SUMS
+          retention-days: 14
