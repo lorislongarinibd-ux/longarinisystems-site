@@ -1,0 +1,62 @@
+{
+  "schema": "ddf-zero-cost-federation-burst-v3",
+  "timestamp_utc": "2026-09-30T21:05:00Z",
+  "hard_free_only": true,
+  "paid_fallback": false,
+  "digitalocean": "DENY",
+  "core_access": "DENY",
+  "certification_host_access": "DENY",
+  "mac_dependency": false,
+  "logical_lanes": 4194304,
+  "providers": {
+    "github_actions": {
+      "verified": true,
+      "physical_runners": 20,
+      "vcpu_per_runner": 4,
+      "target_concurrent_synthesis_processes": 80,
+      "measured_campaign_candidates": 4096,
+      "measured_wall_seconds": 384
+    },
+    "circleci": {
+      "verified": false,
+      "target_jobs": 30,
+      "vcpu_per_job": 4,
+      "target_concurrent_synthesis_processes": 120
+    },
+    "cirrus_ci": {
+      "verified": false,
+      "target_tasks": 256,
+      "vcpu_per_task": 2,
+      "target_vcpu": 512
+    },
+    "buildkite": {
+      "verified": false,
+      "target_jobs": 10,
+      "target_vcpu": 20
+    },
+    "travis_ci": {
+      "verified": false,
+      "target_concurrent_synthesis_processes": 36
+    },
+    "replit": {
+      "verified": true,
+      "role": "federation coordinator and pruning",
+      "heavy_executor_count": "report only after heartbeat"
+    }
+  },
+  "promotion_funnel": [
+    "deterministic_structural_screen",
+    "simulation",
+    "synthesis",
+    "formal_partition",
+    "deep_timing_resource_analysis",
+    "finalist_evidence_package"
+  ],
+  "evidence_rules": {
+    "single_authority": true,
+    "exclusive_candidate_ownership": true,
+    "duplicate_execution": "DENY",
+    "sha256_artifacts": true,
+    "count_worker_only_after_real_execution": true
+  }
+}
