@@ -1,38 +1,68 @@
 os: linux
-dist: noble
+dist: jammy
 language: minimal
+virt: lxd
 
 branches:
   only:
     - ddf-free-fabric-v2
 
-env:
-  jobs:
-    - WORKER=0 WORKERS=20
-    - WORKER=1 WORKERS=20
-    - WORKER=2 WORKERS=20
-    - WORKER=3 WORKERS=20
-    - WORKER=4 WORKERS=20
-    - WORKER=5 WORKERS=20
-    - WORKER=6 WORKERS=20
-    - WORKER=7 WORKERS=20
-    - WORKER=8 WORKERS=20
-    - WORKER=9 WORKERS=20
-    - WORKER=10 WORKERS=20
-    - WORKER=11 WORKERS=20
-    - WORKER=12 WORKERS=20
-    - WORKER=13 WORKERS=20
-    - WORKER=14 WORKERS=20
-    - WORKER=15 WORKERS=20
-    - WORKER=16 WORKERS=20
-    - WORKER=17 WORKERS=20
-    - WORKER=18 WORKERS=20
-    - WORKER=19 WORKERS=20
+jobs:
+  fast_finish: false
+  include:
+    - arch: arm64
+      env: WORKER_BASE=0
+    - arch: arm64
+      env: WORKER_BASE=1
+    - arch: arm64
+      env: WORKER_BASE=2
+    - arch: arm64
+      env: WORKER_BASE=3
+    - arch: arm64
+      env: WORKER_BASE=4
+    - arch: arm64
+      env: WORKER_BASE=5
+    - arch: ppc64le
+      env: WORKER_BASE=6
+    - arch: ppc64le
+      env: WORKER_BASE=7
+    - arch: ppc64le
+      env: WORKER_BASE=8
+    - arch: ppc64le
+      env: WORKER_BASE=9
+    - arch: ppc64le
+      env: WORKER_BASE=10
+    - arch: ppc64le
+      env: WORKER_BASE=11
+    - arch: s390x
+      env: WORKER_BASE=12
+    - arch: s390x
+      env: WORKER_BASE=13
+    - arch: s390x
+      env: WORKER_BASE=14
+    - arch: s390x
+      env: WORKER_BASE=15
+    - arch: s390x
+      env: WORKER_BASE=16
+    - arch: s390x
+      env: WORKER_BASE=17
 
 install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y -qq yosys
+  - sudo apt-get install -y -qq yosys python3
 
 script:
   - cd ddf_public_executor
-  - python3 tools/run_shard.py --worker "$WORKER" --workers "$WORKERS" --count 4096
+  - |
+    set -euo pipefail
+    base=$(( WORKER_BASE * 2 ))
+    python3 tools/run_shard.py --worker "$base" --workers 36 --count 4096 > "travis_${base}.log" 2>&1 &
+    p1=$!
+    w2=$(( base + 1 ))
+    python3 tools/run_shard.py --worker "$w2" --workers 36 --count 4096 > "travis_${w2}.log" 2>&1 &
+    p2=$!
+    rc=0
+    wait "$p1" || rc=1
+    wait "$p2" || rc=1
+    cat travis_*.log
+    exit "$rc"
