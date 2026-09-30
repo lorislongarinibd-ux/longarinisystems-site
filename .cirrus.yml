@@ -1,0 +1,147 @@
+ddf_synthesis_task:
+  name: DDF OSS synth $WORKER
+  container:
+    image: ubuntu:24.04
+    cpu: 2
+    memory: 4G
+  env:
+    matrix:
+      WORKER: 0
+      WORKER: 1
+      WORKER: 2
+      WORKER: 3
+      WORKER: 4
+      WORKER: 5
+      WORKER: 6
+      WORKER: 7
+      WORKER: 8
+      WORKER: 9
+      WORKER: 10
+      WORKER: 11
+      WORKER: 12
+      WORKER: 13
+      WORKER: 14
+      WORKER: 15
+      WORKER: 16
+      WORKER: 17
+      WORKER: 18
+      WORKER: 19
+      WORKER: 20
+      WORKER: 21
+      WORKER: 22
+      WORKER: 23
+      WORKER: 24
+      WORKER: 25
+      WORKER: 26
+      WORKER: 27
+      WORKER: 28
+      WORKER: 29
+      WORKER: 30
+      WORKER: 31
+      WORKER: 32
+      WORKER: 33
+      WORKER: 34
+      WORKER: 35
+      WORKER: 36
+      WORKER: 37
+      WORKER: 38
+      WORKER: 39
+      WORKER: 40
+      WORKER: 41
+      WORKER: 42
+      WORKER: 43
+      WORKER: 44
+      WORKER: 45
+      WORKER: 46
+      WORKER: 47
+      WORKER: 48
+      WORKER: 49
+      WORKER: 50
+      WORKER: 51
+      WORKER: 52
+      WORKER: 53
+      WORKER: 54
+      WORKER: 55
+      WORKER: 56
+      WORKER: 57
+      WORKER: 58
+      WORKER: 59
+      WORKER: 60
+      WORKER: 61
+      WORKER: 62
+      WORKER: 63
+      WORKER: 64
+      WORKER: 65
+      WORKER: 66
+      WORKER: 67
+      WORKER: 68
+      WORKER: 69
+      WORKER: 70
+      WORKER: 71
+      WORKER: 72
+      WORKER: 73
+      WORKER: 74
+      WORKER: 75
+      WORKER: 76
+      WORKER: 77
+      WORKER: 78
+      WORKER: 79
+      WORKER: 80
+      WORKER: 81
+      WORKER: 82
+      WORKER: 83
+      WORKER: 84
+      WORKER: 85
+      WORKER: 86
+      WORKER: 87
+      WORKER: 88
+      WORKER: 89
+      WORKER: 90
+      WORKER: 91
+      WORKER: 92
+      WORKER: 93
+      WORKER: 94
+      WORKER: 95
+      WORKER: 96
+      WORKER: 97
+      WORKER: 98
+      WORKER: 99
+      WORKER: 100
+      WORKER: 101
+      WORKER: 102
+      WORKER: 103
+      WORKER: 104
+      WORKER: 105
+      WORKER: 106
+      WORKER: 107
+      WORKER: 108
+      WORKER: 109
+      WORKER: 110
+      WORKER: 111
+      WORKER: 112
+      WORKER: 113
+      WORKER: 114
+      WORKER: 115
+      WORKER: 116
+      WORKER: 117
+      WORKER: 118
+      WORKER: 119
+      WORKER: 120
+      WORKER: 121
+      WORKER: 122
+      WORKER: 123
+      WORKER: 124
+      WORKER: 125
+      WORKER: 126
+      WORKER: 127
+    WORKERS: 128
+  only_if: $CIRRUS_BRANCH == 'ddf-free-fabric-v2'
+  install_script:
+    - apt-get update -qq
+    - DEBIAN_FRONTEND=noninteractive apt-get install -y -qq yosys python3
+  synth_script:
+    - cd ddf_public_executor
+    - python3 tools/run_shard.py --worker "$WORKER" --workers "$WORKERS" --count 4096
+  always:
+    evidence_artifacts:
+      path: "ddf_public_executor/out/**/*"
