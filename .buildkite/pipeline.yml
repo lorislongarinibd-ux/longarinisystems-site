@@ -5,7 +5,17 @@ steps:
       sudo apt-get update -qq
       sudo apt-get install -y -qq yosys
       cd ddf_public_executor
-      python3 tools/run_shard.py --worker "$BUILDKITE_PARALLEL_JOB" --workers "$BUILDKITE_PARALLEL_JOB_COUNT" --count 4096
+      base=$(( BUILDKITE_PARALLEL_JOB * 2 ))
+      python3 tools/run_shard.py --worker "$base" --workers 20 --count 4096 > "bk_${base}.log" 2>&1 &
+      p1=$!
+      w2=$(( base + 1 ))
+      python3 tools/run_shard.py --worker "$w2" --workers 20 --count 4096 > "bk_${w2}.log" 2>&1 &
+      p2=$!
+      rc=0
+      wait "$p1" || rc=1
+      wait "$p2" || rc=1
+      cat bk_*.log
+      exit "$rc"
     parallelism: 10
     branches: "ddf-free-fabric-v2"
     artifact_paths:
