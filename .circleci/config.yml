@@ -1,0 +1,30 @@
+version: 2.1
+
+jobs:
+  ddf-synthesis:
+    docker:
+      - image: cimg/base:stable
+    resource_class: small
+    parallelism: 30
+    steps:
+      - checkout
+      - run:
+          name: Install Yosys
+          command: |
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq yosys
+      - run:
+          name: Deterministic synthesis shard
+          command: |
+            cd ddf_public_executor
+            python3 tools/run_shard.py               --worker "$CIRCLE_NODE_INDEX"               --workers "$CIRCLE_NODE_TOTAL"               --count 4096
+      - store_artifacts:
+          path: ddf_public_executor/out
+
+workflows:
+  ddf-free-fabric:
+    jobs:
+      - ddf-synthesis:
+          filters:
+            branches:
+              only: ddf-free-fabric-v2
