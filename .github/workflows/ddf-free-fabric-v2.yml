@@ -1,0 +1,103 @@
+name: DDF Free Fabric 4096 Synthesis Sweep
+
+on:
+  push:
+    branches:
+      - ddf-free-fabric-v2
+    paths:
+      - 'ddf_public_executor/**'
+      - '.github/workflows/ddf-free-fabric-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synth:
+    name: synth-worker-${{ matrix.group }}-${{ matrix.offset }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        group: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        offset: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install HDL synthesis tool
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq yosys
+
+      - name: Run disjoint deterministic shard
+        working-directory: ddf_public_executor
+        run: |
+          worker=$(( ${{ matrix.group }} * 16 + ${{ matrix.offset }} ))
+          python3 tools/run_shard.py --worker "$worker" --workers 256 --count 4096 | tee worker.log
+
+      - name: Hash immutable evidence
+        working-directory: ddf_public_executor
+        run: |
+          worker=$(( ${{ matrix.group }} * 16 + ${{ matrix.offset }} ))
+          sha256sum "out/worker_$(printf '%03d' "$worker")/results.json"                     "out/worker_$(printf '%03d' "$worker")/summary.json"                     > "out/worker_$(printf '%03d' "$worker")/SHA256SUMS"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ddf-synth-${{ matrix.group }}-${{ matrix.offset }}
+          path: ddf_public_executor/out/
+          retention-days: 14
+
+  aggregate:
+    name: aggregate-evidence
+    needs: synth
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ddf-synth-*
+          path: evidence
+
+      - name: Aggregate 4096 candidate results
+        run: |
+          python3 - <<'PY'
+          import glob,hashlib,json,pathlib
+          rows=[]
+          summaries=[]
+          for p in glob.glob("evidence/**/results.json",recursive=True):
+              rows.extend(json.load(open(p)))
+          for p in glob.glob("evidence/**/summary.json",recursive=True):
+              summaries.append(json.load(open(p)))
+          ids=[r["config"]["candidate_id"] for r in rows]
+          unique=len(set(ids))
+          out={
+            "schema":"ddf-public-synthesis-campaign-v1",
+            "total_results":len(rows),
+            "unique_candidates":unique,
+            "passed":sum(bool(r["pass"]) for r in rows),
+            "failed":sum(not bool(r["pass"]) for r in rows),
+            "worker_artifacts":len(summaries),
+            "duplicate_candidate_ids":len(rows)-unique,
+            "core_access":"DENY",
+            "certification_host_access":"DENY"
+          }
+          q=pathlib.Path("DDF_4096_SUMMARY.json")
+          q.write_text(json.dumps(out,indent=2,sort_keys=True)+"\n")
+          pathlib.Path("DDF_4096_SUMMARY.sha256").write_text(
+            hashlib.sha256(q.read_bytes()).hexdigest()+"  "+q.name+"\n"
+          )
+          print(json.dumps(out,sort_keys=True))
+          assert out["unique_candidates"]==4096
+          assert out["duplicate_candidate_ids"]==0
+          assert out["worker_artifacts"]==256
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ddf-4096-campaign-summary
+          path: |
+            DDF_4096_SUMMARY.json
+            DDF_4096_SUMMARY.sha256
+          retention-days: 30
